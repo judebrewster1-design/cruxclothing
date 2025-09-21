@@ -1,3 +1,0 @@
-User-agent: *
-Disallow: /404.html
-Sitemap: https://judebrewster1-design.github.io/cruxclothing/sitemap.xml
