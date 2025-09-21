@@ -131,17 +131,23 @@
 </header>
 
 <main>
+  <!-- Shop Page -->
   <section id="shopPage" class="grid">
     <article class="card" onclick="openOptions('sweater')">
-      <img src="images/sweater.png" alt="Cozy Sweater">
+      <img src="sweater.png" alt="Cozy Sweater">
       <h3>Cozy Sweater</h3>
     </article>
     <article class="card" onclick="openOptions('pants')">
-      <img src="images/pants.png" alt="Modern Pants">
+      <img src="pants.png" alt="Modern Pants">
       <h3>Modern Pants</h3>
+    </article>
+    <article class="card" onclick="openOptions('tshirt')">
+      <img src="tshirt.png" alt="Cool T-Shirt">
+      <h3>Cool T-Shirt</h3>
     </article>
   </section>
 
+  <!-- Product Options Page -->
   <section id="optionsPage" class="hidden">
     <nav>
       <a class="button" onclick="backToShop()">← Back to Shop</a>
@@ -162,15 +168,22 @@
     sweater: {
       name: "Cozy Sweater",
       colors: [
-        {color: "Black", img: "images/sweater_black.png", url: "https://buy.stripe.com/test_link_black"},
-        {color: "White", img: "images/sweater_white.png", url: "https://buy.stripe.com/test_link_white"}
+        {color: "Black", img: "sweater_black.png", url: "https://buy.stripe.com/test_link_black"},
+        {color: "White", img: "sweater_white.png", url: "https://buy.stripe.com/test_link_white"}
       ]
     },
     pants: {
       name: "Modern Pants",
       colors: [
-        {color: "Black", img: "images/pants_black.png", url: "https://buy.stripe.com/test_link_black"},
-        {color: "White", img: "images/pants_white.png", url: "https://buy.stripe.com/test_link_white"}
+        {color: "Black", img: "pants_black.png", url: "https://buy.stripe.com/test_link_black"},
+        {color: "White", img: "pants_white.png", url: "https://buy.stripe.com/test_link_white"}
+      ]
+    },
+    tshirt: {
+      name: "Cool T-Shirt",
+      colors: [
+        {color: "Black", img: "tshirt_black.png", url: "https://buy.stripe.com/test_link_black"},
+        {color: "White", img: "tshirt_white.png", url: "https://buy.stripe.com/test_link_white"}
       ]
     }
   };
