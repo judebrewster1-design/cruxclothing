@@ -1,7 +1,28 @@
-?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Main shop page -->
   <url>
     <loc>https://judebrewster1-design.github.io/cruxclothing/</loc>
-    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
+
+  <!-- Sweater options page -->
+  <url>
+    <loc>https://judebrewster1-design.github.io/cruxclothing/sweater.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Pants options page -->
+  <url>
+    <loc>https://judebrewster1-design.github.io/cruxclothing/pants.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- T-shirt options page -->
+  <url>
+    <loc>https://judebrewster1-design.github.io/cruxclothing/tshirt.html</loc>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
