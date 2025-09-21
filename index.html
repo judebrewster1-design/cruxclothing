@@ -1,35 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CruxClothes Store</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-      background-color: #222;
-      color: #fff;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5em;
-    }
-    p {
-      font-size: 1.2em;
-      margin-top: 0.5em;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CruxClothes</title>
+<style>
+  body {margin:0; font-family: 'Segoe UI', sans-serif; background:#f4f4f9; color:#111;}
+  header {background: linear-gradient(135deg, #ff416c, #ff4b2b); color:white; text-align:center; padding:60px 20px;}
+  header h1 {font-size:3em; margin-bottom:10px; letter-spacing:2px;}
+  header p {font-size:1.2em; max-width:700px; margin:auto;}
+
+  section {padding:40px 20px;}
+  h2 {text-align:center; margin-bottom:30px; font-size:2em; color:#333;}
+
+  .product-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:25px;}
+  .card {background:#fff; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1); overflow:hidden; transition:transform 0.3s; position:relative;}
+  .card:hover {transform:translateY(-5px);}
+  .card img {width:100%; height:250px; object-fit:cover; transition:0.3s;}
+  .card-content {padding:20px; text-align:center;}
+  .card-content h3 {margin-bottom:10px;}
+  .card-content p {color:#555; font-size:0.95em; margin-bottom:15px;}
+  .btn {display:inline-block; padding:8px 15px; background:#ff416c; color:white; border-radius:8px; text-decoration:none; font-weight:600; transition:0.3s;}
+  .btn:hover {background:#ff4b2b;}
+
+  /* Arrow buttons */
+  .arrow {position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; font-size:1.5em; padding:8px 12px; cursor:pointer; border-radius:50%;}
+  .arrow.left {left:10px;}
+  .arrow.right {right:10px;}
+  
+  /* Color buttons */
+  .color-swap {margin-top:10px;}
+  .color-btn {padding:5px 12px; border-radius:6px; border:none; margin:0 5px; cursor:pointer; font-weight:600;}
+  .color-btn.black {background:#000; color:#fff;}
+  .color-btn.white {background:#fff; color:#000; border:1px solid #000;}
+</style>
 </head>
 <body>
-  <div>
-    <h1>CruxClothes Store</h1>
-    <p>Our store is coming soon!</p>
+
+<header>
+  <h1>CruxClothes</h1>
+  <p>Premium sweaters, pants, and shirts. Swap colors and browse multiple images of each product with smooth navigation!</p>
+</header>
+
+<section>
+  <h2>Featured Products</h2>
+  <div class="product-grid">
+    
+    <!-- Sweater Card -->
+    <div class="card" data-product="sweater">
+      <img src="sweater1.jpg" alt="Sweater" id="sweater-img">
+      <button class="arrow left" onclick="prevImage('sweater')">&#10094;</button>
+      <button class="arrow right" onclick="nextImage('sweater')">&#10095;</button>
+      <div class="card-content">
+        <h3>Cozy Crux Sweater</h3>
+        <p>Soft, warm, and stylish for any season.</p>
+        <div class="color-swap">
+          <button class="color-btn black" onclick="swapColor('sweater','black')">Black</button>
+          <button class="color-btn white" onclick="swapColor('sweater','white')">White</button>
+        </div>
+        <a href="#" class="btn">Shop Now</a>
+      </div>
+    </div>
+
+    <!-- Shirt Card -->
+    <div class="card" data-product="shirt">
+      <img src="shirt1_black.jpg" alt="Shirt" id="shirt-img">
+      <button class="arrow left" onclick="prevImage('shirt')">&#10094;</button>
+      <button class="arrow right" onclick="nextImage('shirt')">&#10095;</button>
+      <div class="card-content">
+        <h3>Crux Statement Shirt</h3>
+        <p>Bold patterns and comfortable fit.</p>
+        <div class="color-swap">
+          <button class="color-btn black" onclick="swapColor('shirt','black')">Black</button>
+          <button class="color-btn white" onclick="swapColor('shirt','white')">White</button>
+        </div>
+        <a href="#" class="btn">Shop Now</a>
+      </div>
+    </div>
+
+    <!-- Pants Card -->
+    <div class="card" data-product="pants">
+      <img src="pants1.jpg" alt="Pants" id="pants-img">
+      <button class="arrow left" onclick="prevImage('pants')">&#10094;</button>
+      <button class="arrow right" onclick="nextImage('pants')">&#10095;</button>
+      <div class="card-content">
+        <h3>Crux Slim Pants</h3>
+        <p>Perfect cut and sleek silhouette for every occasion.</p>
+        <a href="#" class="btn">Shop Now</a>
+      </div>
+    </div>
+
   </div>
+</section>
+
+<script>
+  // Images arrays for each product
+  const products = {
+    sweater: ["sweater1.jpg","sweater2.jpg","sweater3.jpg"],
+    shirt_black: ["shirt1_black.jpg","shirt2_black.jpg","shirt3_black.jpg"],
+    shirt_white: ["shirt1_white.jpg","shirt2_white.jpg","shirt3_white.jpg"],
+    pants: ["pants1.jpg","pants2.jpg","pants3.jpg"]
+  };
+
+  const state = {
+    sweater: 0,
+    shirt: 0,
+    shirtColor: 'black',
+    pants: 0
+  };
+
+  function nextImage(prod) {
+    let arr = prod==='shirt' ? products[`shirt_${state.shirtColor}`] : products[prod];
+    state[prod] = (state[prod]+1)%arr.length;
+    document.getElementById(prod+'-img').src = arr[state[prod]];
+  }
+
+  function prevImage(prod) {
+    let arr = prod==='shirt' ? products[`shirt_${state.shirtColor}`] : products[prod];
+    state[prod] = (state[prod]-1+arr.length)%arr.length;
+    document.getElementById(prod+'-img').src = arr[state[prod]];
+  }
+
+  function swapColor(prod,color) {
+    if(prod==='shirt') {
+      state.shirtColor = color;
+      state.shirt = 0; // reset to first image of new color
+      document.getElementById('shirt-img').src = products[`shirt_${color}`][0];
+    }
+  }
+</script>
+
 </body>
 </html>
