@@ -1,1 +1,43 @@
-code here
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crux Clothing</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Crux Clothing</h1>
+    <p>Simple shop. Fast. Clean.</p>
+  </header>
+
+  <main class="container">
+    <section class="products">
+      <!-- Product 1 -->
+      <article class="card">
+        <img src="images/product1.jpg" alt="Crux Tee" />
+        <h3>Crux Tee</h3>
+        <p class="price">$24.00</p>
+
+        <!-- PayPal simple buy button (replace YOUR_PAYPAL_EMAIL) -->
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+          <input type="hidden" name="cmd" value="_xclick">
+          <input type="hidden" name="business" value="YOUR_PAYPAL_EMAIL">
+          <input type="hidden" name="item_name" value="Crux Tee">
+          <input type="hidden" name="amount" value="24.00">
+          <input type="hidden" name="currency_code" value="USD">
+          <button type="submit" class="btn">Buy</button>
+        </form>
+      </article>
+
+      <!-- Copy the article block for more products -->
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>© Crux Clothing</small>
+  </footer>
+</body>
+</html>
+
