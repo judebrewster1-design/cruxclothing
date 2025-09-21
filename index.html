@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crux Clothing | Modern Streetwear Shop</title>
-<meta name="description" content="Shop Crux Clothing's stylish sweaters, shirts, and pants. Modern streetwear, cozy and high-quality fashion.">
-<meta name="keywords" content="Crux Clothing, streetwear, sweaters, shirts, pants, modern fashion, cozy clothing">
+<title>Crux Clothing | Retro Purple Streetwear</title>
+<meta name="description" content="Shop Crux Clothing's stylish sweaters, shirts, and pants in retro purple 70s style. Choose colors and buy securely online.">
+<meta name="keywords" content="Crux Clothing, streetwear, retro fashion, purple sweaters, shirts, pants, 70s style, cozy clothing">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.cruxclothing.com/">
 <style>
   body {
     margin: 0;
     font-family: 'Arial', sans-serif;
-    background: #121212;
-    color: #fff;
+    background: linear-gradient(160deg, #2a1a40, #3d1e5f);
+    color: #f2e5ff;
+    min-height: 100vh;
   }
 
   header {
@@ -19,99 +22,159 @@
     padding: 3rem 1rem 2rem;
     font-size: 3rem;
     letter-spacing: 2px;
-    color: #f5f5f5;
+    color: #ffd6ff;
+    text-shadow: 2px 2px #1c0f2a;
   }
 
-  .shop-container {
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
   }
 
-  .product-card {
-    background: #1e1e1e;
-    border-radius: 12px;
+  .card {
+    background: linear-gradient(145deg, #3d1e5f, #5a2a80);
+    border-radius: 15px;
     overflow: hidden;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.7);
     transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    position: relative;
   }
 
-  .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.8);
   }
 
-  .product-card img {
+  .card img {
     width: 100%;
-    border-bottom: 2px solid #ff6f61;
+    border-bottom: 2px solid #ffb3ff;
   }
 
-  .product-card h3 {
+  .card h3 {
     margin: 0.7rem 0 0.3rem;
-    font-size: 1.2rem;
-    color: #ffb085;
+    font-size: 1.3rem;
+    color: #ffe5ff;
   }
 
-  .product-card p {
-    margin: 0.2rem 0 0.5rem;
-    font-size: 1rem;
-    color: #ccc;
-  }
-
-  .product-card button {
+  .button {
+    display: inline-block;
     margin: 0.5rem 0 1rem;
     padding: 0.5rem 1.2rem;
-    background: #ff6f61;
+    background: #ff99ff;
     border: none;
     border-radius: 8px;
-    cursor: pointer;
-    color: #121212;
+    color: #2a1a40;
     font-weight: bold;
+    text-decoration: none;
     transition: background 0.2s;
   }
 
-  .product-card button:hover {
-    background: #ff8f7a;
+  .button:hover {
+    background: #ffb3ff;
   }
+
+  .hidden { display: none; }
 
   footer {
     text-align: center;
     padding: 2rem 1rem;
     font-size: 0.9rem;
-    color: #888;
+    color: #d0b3ff;
   }
+
+  nav {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
 </style>
 </head>
 <body>
 
 <header>Crux Clothing</header>
 
-<div class="shop-container">
-  <div class="product-card">
-    <img src="images/sweater.png" alt="Crux Clothing Cozy Sweater">
-    <h3>Cozy Sweater</h3>
-    <p>$45</p>
-    <button>Buy</button>
-  </div>
-  <div class="product-card">
-    <img src="images/shirt.png" alt="Crux Clothing Stylish Shirt">
-    <h3>Stylish Shirt</h3>
-    <p>$35</p>
-    <button>Buy</button>
-  </div>
-  <div class="product-card">
-    <img src="images/pants.png" alt="Crux Clothing Modern Pants">
-    <h3>Modern Pants</h3>
-    <p>$50</p>
-    <button>Buy</button>
-  </div>
-</div>
+<main>
+  <!-- Shop Page -->
+  <section id="shopPage" class="grid">
+    <article class="card" onclick="openOptions('sweater')">
+      <img src="images/sweater.png" alt="Crux Clothing Cozy Sweater">
+      <h3>Cozy Sweater</h3>
+    </article>
+    <article class="card" onclick="openOptions('pants')">
+      <img src="images/pants.png" alt="Crux Clothing Modern Pants">
+      <h3>Modern Pants</h3>
+    </article>
+  </section>
 
-<footer></footer>
+  <!-- Product Options Page -->
+  <section id="optionsPage" class="hidden">
+    <nav>
+      <a class="button" onclick="backToShop()">← Back to Shop</a>
+    </nav>
+    <div id="optionsGrid" class="grid"></div>
+  </section>
+</main>
+
+<footer>© 2025 Crux Clothing</footer>
+
+<script>
+  const shopPage = document.getElementById('shopPage');
+  const optionsPage = document.getElementById('optionsPage');
+  const optionsGrid = document.getElementById('optionsGrid');
+
+  // Products with color options and checkout URLs
+  const products = {
+    sweater: {
+      name: "Cozy Sweater",
+      colors: [
+        {color: "Black", img: "images/sweater_black.png", url: "https://squareup.com/payments/sweater_black"},
+        {color: "White", img: "images/sweater_white.png", url: "https://squareup.com/payments/sweater_white"}
+      ]
+    },
+    pants: {
+      name: "Modern Pants",
+      colors: [
+        {color: "Black", img: "images/pants_black.png", url: "https://squareup.com/payments/pants_black"},
+        {color: "White", img: "images/pants_white.png", url: "https://squareup.com/payments/pants_white"}
+      ]
+    }
+  };
+
+  function openOptions(productKey) {
+    const product = products[productKey];
+    optionsGrid.innerHTML = ""; // Clear previous
+    product.colors.forEach(option => {
+      const div = document.createElement('article');
+      div.className = 'card';
+      div.onclick = () => { window.location.href = option.url; };
+      div.innerHTML = `
+        <img src="${option.img}" alt="${product.name} ${option.color}">
+        <h3>${option.color}</h3>
+      `;
+      optionsGrid.appendChild(div);
+    });
+    shopPage.classList.add('hidden');
+    optionsPage.classList.remove('hidden');
+    document.title = `Crux Clothing | ${product.name} Options`;
+    document.querySelector('meta[name="description"]').content = `Choose your color for ${product.name} and buy securely online.`;
+  }
+
+  function backToShop() {
+    optionsPage.classList.add('hidden');
+    shopPage.classList.remove('hidden');
+    document.title = 'Crux Clothing | Retro Purple Streetwear';
+    document.querySelector('meta[name="description"]').content = 'Shop Crux Clothing\'s stylish sweaters, shirts, and pants in retro purple 70s style. Choose colors and buy securely online.';
+  }
+</script>
 
 </body>
 </html>
