@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crux Clothing | Retro Purple Streetwear</title>
-<meta name="description" content="Shop Crux Clothing's stylish sweaters, shirts, and pants in retro purple 70s style. Choose colors and buy securely online.">
-<meta name="keywords" content="Crux Clothing, streetwear, retro fashion, purple sweaters, shirts, pants, 70s style, cozy clothing">
+<title>Crux Clothing | 70s Retro Streetwear</title>
+<meta name="description" content="Shop Crux Clothing's 70s-inspired streetwear: sweaters, shirts, pants. Purple retro style, animated shop interface, pay with card directly.">
+<meta name="keywords" content="Crux Clothing, 70s streetwear, retro fashion, sweaters, shirts, pants, purple style, neon fashion">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.cruxclothing.com/">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
   body {
     margin: 0;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Orbitron', sans-serif;
     background: linear-gradient(160deg, #2a1a40, #3d1e5f);
     color: #f2e5ff;
-    min-height: 100vh;
+    overflow-x: hidden;
   }
 
   header {
@@ -24,6 +25,7 @@
     letter-spacing: 2px;
     color: #ffd6ff;
     text-shadow: 2px 2px #1c0f2a;
+    position: relative;
   }
 
   main {
@@ -36,6 +38,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 2rem;
+    perspective: 1000px;
   }
 
   .card {
@@ -44,19 +47,24 @@
     overflow: hidden;
     text-align: center;
     box-shadow: 0 6px 18px rgba(0,0,0,0.7);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.5s, box-shadow 0.5s;
     cursor: pointer;
     position: relative;
   }
 
   .card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+    transform: rotateY(10deg) translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
   }
 
   .card img {
     width: 100%;
     border-bottom: 2px solid #ffb3ff;
+    transition: transform 0.5s;
+  }
+
+  .card:hover img {
+    transform: scale(1.05);
   }
 
   .card h3 {
@@ -75,11 +83,12 @@
     color: #2a1a40;
     font-weight: bold;
     text-decoration: none;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.3s;
   }
 
   .button:hover {
     background: #ffb3ff;
+    transform: scale(1.05);
   }
 
   .hidden { display: none; }
@@ -96,26 +105,43 @@
     text-align: center;
   }
 
+  /* Floating neon circles animation */
+  .neon-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.2;
+    animation: float 15s linear infinite;
+    z-index: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-50px) translateX(30px); }
+    100% { transform: translateY(0) translateX(0); }
+  }
 </style>
 </head>
 <body>
 
-<header>Crux Clothing</header>
+<header>
+  Crux Clothing
+  <div class="neon-circle" style="width: 100px; height:100px; background:#ff99ff; top:10%; left:20%; animation-duration:20s;"></div>
+  <div class="neon-circle" style="width: 150px; height:150px; background:#cc99ff; top:50%; left:70%; animation-duration:25s;"></div>
+  <div class="neon-circle" style="width: 80px; height:80px; background:#ff66ff; top:70%; left:30%; animation-duration:18s;"></div>
+</header>
 
 <main>
-  <!-- Shop Page -->
   <section id="shopPage" class="grid">
     <article class="card" onclick="openOptions('sweater')">
-      <img src="images/sweater.png" alt="Crux Clothing Cozy Sweater">
+      <img src="images/sweater.png" alt="Cozy Sweater">
       <h3>Cozy Sweater</h3>
     </article>
     <article class="card" onclick="openOptions('pants')">
-      <img src="images/pants.png" alt="Crux Clothing Modern Pants">
+      <img src="images/pants.png" alt="Modern Pants">
       <h3>Modern Pants</h3>
     </article>
   </section>
 
-  <!-- Product Options Page -->
   <section id="optionsPage" class="hidden">
     <nav>
       <a class="button" onclick="backToShop()">← Back to Shop</a>
@@ -131,27 +157,27 @@
   const optionsPage = document.getElementById('optionsPage');
   const optionsGrid = document.getElementById('optionsGrid');
 
-  // Products with color options and checkout URLs
+  // Products with color options and Stripe Payment Links
   const products = {
     sweater: {
       name: "Cozy Sweater",
       colors: [
-        {color: "Black", img: "images/sweater_black.png", url: "https://squareup.com/payments/sweater_black"},
-        {color: "White", img: "images/sweater_white.png", url: "https://squareup.com/payments/sweater_white"}
+        {color: "Black", img: "images/sweater_black.png", url: "https://buy.stripe.com/test_link_black"},
+        {color: "White", img: "images/sweater_white.png", url: "https://buy.stripe.com/test_link_white"}
       ]
     },
     pants: {
       name: "Modern Pants",
       colors: [
-        {color: "Black", img: "images/pants_black.png", url: "https://squareup.com/payments/pants_black"},
-        {color: "White", img: "images/pants_white.png", url: "https://squareup.com/payments/pants_white"}
+        {color: "Black", img: "images/pants_black.png", url: "https://buy.stripe.com/test_link_black"},
+        {color: "White", img: "images/pants_white.png", url: "https://buy.stripe.com/test_link_white"}
       ]
     }
   };
 
   function openOptions(productKey) {
     const product = products[productKey];
-    optionsGrid.innerHTML = ""; // Clear previous
+    optionsGrid.innerHTML = "";
     product.colors.forEach(option => {
       const div = document.createElement('article');
       div.className = 'card';
@@ -171,7 +197,7 @@
   function backToShop() {
     optionsPage.classList.add('hidden');
     shopPage.classList.remove('hidden');
-    document.title = 'Crux Clothing | Retro Purple Streetwear';
+    document.title = 'Crux Clothing | 70s Retro Streetwear';
     document.querySelector('meta[name="description"]').content = 'Shop Crux Clothing\'s stylish sweaters, shirts, and pants in retro purple 70s style. Choose colors and buy securely online.';
   }
 </script>
