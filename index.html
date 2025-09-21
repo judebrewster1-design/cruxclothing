@@ -2,25 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Crux Clothing</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --bg: #fff;
+      --text: #111;
+      --accent: #111;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.4;
+      color: var(--text);
+      background: var(--bg);
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 6px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #e6e6e6;
+      padding: 14px;
+      border-radius: 8px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .card h3 { margin: 8px 0; }
+    .price { font-weight: bold; margin-bottom: 10px; }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
-  <header class="site-header">
+  <header>
     <h1>Crux Clothing</h1>
-    <p>Simple shop. Fast. Clean.</p>
+    <p>Streetwear for everyday</p>
   </header>
 
   <main class="container">
     <section class="products">
+
       <!-- Product 1 -->
       <article class="card">
         <img src="images/product1.jpg" alt="Crux Tee" />
         <h3>Crux Tee</h3>
         <p class="price">$24.00</p>
-
-        <!-- PayPal simple buy button (replace YOUR_PAYPAL_EMAIL) -->
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
           <input type="hidden" name="cmd" value="_xclick">
           <input type="hidden" name="business" value="YOUR_PAYPAL_EMAIL">
@@ -31,13 +88,41 @@
         </form>
       </article>
 
-      <!-- Copy the article block for more products -->
+      <!-- Product 2 -->
+      <article class="card">
+        <img src="images/product2.jpg" alt="Crux Hoodie" />
+        <h3>Crux Hoodie</h3>
+        <p class="price">$48.00</p>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+          <input type="hidden" name="cmd" value="_xclick">
+          <input type="hidden" name="business" value="YOUR_PAYPAL_EMAIL">
+          <input type="hidden" name="item_name" value="Crux Hoodie">
+          <input type="hidden" name="amount" value="48.00">
+          <input type="hidden" name="currency_code" value="USD">
+          <button type="submit" class="btn">Buy</button>
+        </form>
+      </article>
+
+      <!-- Product 3 -->
+      <article class="card">
+        <img src="images/product3.jpg" alt="Crux Cap" />
+        <h3>Crux Cap</h3>
+        <p class="price">$18.00</p>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+          <input type="hidden" name="cmd" value="_xclick">
+          <input type="hidden" name="business" value="YOUR_PAYPAL_EMAIL">
+          <input type="hidden" name="item_name" value="Crux Cap">
+          <input type="hidden" name="amount" value="18.00">
+          <input type="hidden" name="currency_code" value="USD">
+          <button type="submit" class="btn">Buy</button>
+        </form>
+      </article>
+
     </section>
   </main>
 
-  <footer class="site-footer">
-    <small>© Crux Clothing</small>
+  <footer>
+    <small>© 2025 Crux Clothing</small>
   </footer>
 </body>
 </html>
-/
