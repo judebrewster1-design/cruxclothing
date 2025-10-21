@@ -1,220 +1,204 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crux Clothing | 70s Retro Streetwear</title>
-<meta name="description" content="Shop Crux Clothing's 70s-inspired streetwear: sweaters, shirts, pants. Purple retro style, animated shop interface, pay with card directly.">
-<meta name="keywords" content="crux clothing, streetwear clothing, urban fashion, retro 70s streetwear, graphic t-shirts, hoodies, sweatshirts, streetwear online, vintage streetwear, bold streetwear, urban style clothing, streetwear fashion, streetwear brand, limited edition streetwear, retro urban fashion, statement hoodies, graphic tees, streetwear outfit, streetwear pants, urban streetwear, neon streetwear, casual streetwear, street style, streetwear trends, streetwear shop, urban fashion online">
-<meta name="robots" content="index, follow">
-<meta name="google-site-verification" content="7eGADBK_lRHRVzVgBXhSihHWoJTtbbtQKTw6tROxI78" />
-
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
-  margin: 0;
-  font-family: 'Orbitron', sans-serif;
-  background: linear-gradient(160deg, #2a1a40, #3d1e5f);
-  color: #f2e5ff;
+  font-family: 'Inter', sans-serif;
+  background: #0a0a0a;
+  color: #ffffff;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
 header {
   text-align: center;
-  padding: 3rem 1rem 2rem;
-  font-size: 3rem;
-  letter-spacing: 2px;
-  color: #ffd6ff;
-  text-shadow: 2px 2px #1c0f2a;
-  position: relative;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+header h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #999;
+  font-weight: 400;
 }
 
 main {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1rem;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
-  perspective: 1000px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
 .card {
-  background: linear-gradient(145deg, #3d1e5f, #5a2a80);
-  border-radius: 15px;
+  background: #1a1a1a;
+  border-radius: 12px;
   overflow: hidden;
-  text-align: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.7);
-  transition: transform 0.5s, box-shadow 0.5s;
+  border: 1px solid #2a2a2a;
+  transition: all 0.3s ease;
   cursor: pointer;
-  position: relative;
 }
 
 .card:hover {
-  transform: rotateY(10deg) translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+  border-color: #444;
 }
 
-.card img {
+.card-image {
   width: 100%;
-  border-bottom: 2px solid #ffb3ff;
-  transition: transform 0.5s;
+  aspect-ratio: 1;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  border-bottom: 1px solid #333;
 }
 
-.card:hover img {
-  transform: scale(1.05);
+.card-content {
+  padding: 1.5rem;
 }
 
 .card h3 {
-  margin: 0.7rem 0 0.3rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.card .price {
   font-size: 1.3rem;
-  color: #ffe5ff;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 1rem;
 }
 
 .button {
   display: inline-block;
-  margin: 0.5rem 0 1rem;
-  padding: 0.5rem 1.2rem;
-  background: #ff99ff;
-  border: none;
+  width: 100%;
+  padding: 0.9rem;
+  background: #fff;
+  color: #000;
+  text-align: center;
   border-radius: 8px;
-  color: #2a1a40;
-  font-weight: bold;
+  font-weight: 600;
   text-decoration: none;
-  transition: background 0.2s, transform 0.3s;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
 .button:hover {
-  background: #ffb3ff;
-  transform: scale(1.05);
+  background: #e0e0e0;
+  transform: scale(1.02);
 }
 
-.hidden { display: none; }
+.button.secondary {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+}
+
+.button.secondary:hover {
+  background: #fff;
+  color: #000;
+}
+
+.hidden { 
+  display: none; 
+}
+
+.back-nav {
+  margin-bottom: 2rem;
+}
+
+.product-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.variant-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.variant-btn {
+  padding: 0.8rem 1.5rem;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variant-btn:hover,
+.variant-btn.active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
 
 footer {
   text-align: center;
-  padding: 2rem 1rem;
-  font-size: 0.9rem;
-  color: #d0b3ff;
+  padding: 3rem 1rem 2rem;
+  color: #666;
+  border-top: 1px solid #2a2a2a;
+  margin-top: 4rem;
 }
 
-nav {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-/* Floating neon circles animation */
-.neon-circle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.2;
-  animation: float 15s linear infinite;
-  z-index: 0;
-}
-
-@keyframes float {
-  0% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-50px) translateX(30px); }
-  100% { transform: translateY(0) translateX(0); }
-}
-</style>
-</head>
-<body>
-
-<header>
-  Crux Clothing
-  <div class="neon-circle" style="width:100px;height:100px;background:#ff99ff;top:10%;left:20%;animation-duration:20s;"></div>
-  <div class="neon-circle" style="width:150px;height:150px;background:#cc99ff;top:50%;left:70%;animation-duration:25s;"></div>
-  <div class="neon-circle" style="width:80px;height:80px;background:#ff66ff;top:70%;left:30%;animation-duration:18s;"></div>
-</header>
-
-<main>
-  <!-- Shop Page -->
-  <section id="shopPage" class="grid">
-    <article class="card" onclick="openOptions('sweater')">
-      <img src="sweater.png" alt="Cozy Sweater">
-      <h3>Cozy Sweater</h3>
-    </article>
-    <article class="card" onclick="openOptions('pants')">
-      <img src="pants.png" alt="Modern Pants">
-      <h3>Modern Pants</h3>
-    </article>
-    <article class="card" onclick="openOptions('tshirt')">
-      <img src="tshirt.png" alt="Cool T-Shirt">
-      <h3>Cool T-Shirt</h3>
-    </article>
-  </section>
-
-  <!-- Product Options Page -->
-  <section id="optionsPage" class="hidden">
-    <nav>
-      <a class="button" onclick="backToShop()">← Back to Shop</a>
-    </nav>
-    <div id="optionsGrid" class="grid"></div>
-  </section>
-</main>
-
-<footer></footer>
-
-<script>
-const shopPage = document.getElementById('shopPage');
-const optionsPage = document.getElementById('optionsPage');
-const optionsGrid = document.getElementById('optionsGrid');
-
-const products = {
-  sweater: {
-    name: "Cozy Sweater",
-    colors: [
-      {color: "Black", img: "sweater_black.png", url: "https://buy.stripe.com/test_link_black"},
-      {color: "White", img: "sweater_white.png", url: "https://buy.stripe.com/test_link_white"}
-    ]
-  },
-  pants: {
-    name: "Modern Pants",
-    colors: [
-      {color: "Black", img: "pants_black.png", url: "https://buy.stripe.com/test_link_black"},
-      {color: "White", img: "pants_white.png", url: "https://buy.stripe.com/test_link_white"}
-    ]
-  },
-  tshirt: {
-    name: "Cool T-Shirt",
-    colors: [
-      {color: "Black", img: "tshirt_black.png", url: "https://buy.stripe.com/test_link_black"},
-      {color: "White", img: "tshirt_white.png", url: "https://buy.stripe.com/test_link_white"}
-    ]
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
   }
-};
-
-function openOptions(productKey) {
-  const product = products[productKey];
-  optionsGrid.innerHTML = "";
-  product.colors.forEach(option => {
-    const div = document.createElement('article');
-    div.className = 'card';
-    div.onclick = () => { window.location.href = option.url; };
-    div.innerHTML = `
-      <img src="${option.img}" alt="${product.name} ${option.color}">
-      <h3>${option.color}</h3>
-    `;
-    optionsGrid.appendChild(div);
-  });
-  shopPage.classList.add('hidden');
-  optionsPage.classList.remove('hidden');
-  document.title = `Crux Clothing | ${product.name} Options`;
-  document.querySelector('meta[name="description"]').content = `Choose your color for ${product.name} and buy securely online.`;
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .card h3 {
+    font-size: 1rem;
+  }
+  
+  .card .price {
+    font-size: 1.1rem;
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  main {
+    padding: 1.5rem 1rem;
+  }
 }
-
-function backToShop() {
-  optionsPage.classList.add('hidden');
-  shopPage.classList.remove('hidden');
-  document.title = 'Crux Clothing | 70s Retro Streetwear';
-  document.querySelector('meta[name="description"]').content = 'Shop Crux Clothing\'s stylish sweaters, shirts, and pants in retro purple 70s style. Choose colors and buy securely online.';
-}
-</script>
-
-</body>
-</html>
