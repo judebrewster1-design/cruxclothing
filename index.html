@@ -1,3 +1,110 @@
+function buyNow() {
+  if (!currentProduct || !selectedVariant) return;
+  
+  const amount = currentProduct.price.toFixed(2);
+  const itemName = `${currentProduct.name} - ${selectedVariant.color}`;
+  
+  // Collect customer info for tracking
+  const customerEmail = prompt('Enter your email for order confirmation:');
+  if (!customerEmail || !customerEmail.includes('@')) {
+    alert('Please enter a valid email address');
+    return;
+  }
+  
+  const customerName = prompt('Enter your name:');
+  if (!customerName) {
+    alert('Please enter your name');
+    return;
+  }
+  
+  // PayPal hosted button/checkout URL - accepts credit cards, debit cards, PayPal balance
+  // This creates a simple PayPal payment page that accepts ANY payment method
+  const paypalURL = `https://www.paypal.com/paypalme/${PAYPAL_EMAIL}/${amount}USD`;
+  
+  // Alternative: Use PayPal's invoice/checkout format
+  // Customers can pay with card without having PayPal account
+  const paypalCheckoutURL = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_EMAIL)}&item_name=${encodeURIComponent(itemName)}&amount=${amount}&currency_code=USD&return=https://yourwebsite.com/thank-you&cancel_return=https://yourwebsite.com`;
+  
+  // Show what they're buying
+  const confirmMsg = `Ready to checkout?\n\n${itemName}\nPrice: ${amount}\n\nYou'll be able to pay with:\n• Credit/Debit Card\n• PayPal Balance\n• Bank Account`;
+  
+  if (confirm(confirmMsg)) {
+    // Track the purchase attempt
+    const purchase = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      product: currentProduct.name,
+      variant: selectedVariant.color,
+      price: amount,
+      customerName: customerName,
+      customerEmail: customerEmail,
+      status: 'Pending Payment'
+    };
+    
+    purchases.push(purchase);
+    updateAdminPanel();
+    
+    // Send order data to external tracking (Google Sheets, email, webhook)
+    sendOrderTracking(purchase);
+    
+    // Use the checkout URL that accepts all payment methods
+    window.open(paypalCheckoutURL, '_blank');
+    
+    // Show confirmation
+    alert(`Order submitted!\n\nOrder ID: ${purchase.id}\n\nYou'll receive a confirmation at ${customerEmail} once payment is complete.`);
+  }
+}
+
+// Send order to external tracking system
+function sendOrderTracking(purchase) {
+  // OPTION 1: Google Form submission (FREE - recommended)
+  // Create a Google Form with fields: timestamp, product, variant, price, name, email
+  // Get the form's pre-filled link and extract the entry IDs
+  // Replace these with your actual Google Form entry IDs
+  const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
+  
+  const formData = new FormData();
+  formData.append('entry.TIMESTAMP_ID', purchase.timestamp);
+  formData.append('entry.PRODUCT_ID', purchase.product);
+  formData.append('entry.VARIANT_ID', purchase.variant);
+  formData.append('entry.PRICE_ID', purchase.price);
+  formData.append('entry.NAME_ID', purchase.customerName);
+  formData.append('entry.EMAIL_ID', purchase.customerEmail);
+  
+  // Submit to Google Form (silently - no confirmation needed)
+  fetch(GOOGLE_FORM_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: formData
+  }).catch(() => {}); // Ignore errors since we're using no-cors
+  
+  // OPTION 2: Email notification via FormSubmit (FREE alternative)
+  // Sends email to you with order details
+  const emailData = {
+    name: purchase.customerName,
+    email: purchase.customerEmail,
+    message: `New Order!\n\nOrder ID: ${purchase.id}\nProduct: ${purchase.product}\nColor: ${purchase.variant}\nPrice: ${purchase.price}\nCustomer: ${purchase.customerName}\nEmail: ${purchase.customerEmail}\nTime: ${purchase.timestamp}`
+  };
+  
+  // Replace with your email - FormSubmit will send orders to this email
+  fetch('https://formsubmit.co/YOUR-EMAIL@example.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(emailData)
+  }).catch(() => {}); // Ignore errors
+  
+  // OPTION 3: Custom webhook (if you have your own server)
+  // fetch('https://your-server.com/api/orders', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify(purchase)
+  // });
+}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crux Apparel | Faith-Based Streetwear</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -20,10 +127,26 @@ header {
   padding: 2rem 1rem;
   background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
   border-bottom: 1px solid #333;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.admin-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.admin-toggle:hover {
+  background: #fff;
+  color: #000;
 }
 
 header h1 {
@@ -130,16 +253,37 @@ main {
 }
 
 .hidden { 
-  display: none; 
+  display: none !important;
 }
 
 .back-nav {
   margin-bottom: 2rem;
 }
 
-.product-detail {
-  max-width: 1200px;
-  margin: 0 auto;
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.product-info h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.product-info p {
+  color: #999;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.product-info .price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 1.5rem;
 }
 
 .variant-selector {
@@ -158,6 +302,8 @@ main {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
 }
 
 .variant-btn:hover,
@@ -165,6 +311,88 @@ main {
   background: #fff;
   color: #000;
   border-color: #fff;
+}
+
+.admin-panel {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.admin-panel h2 {
+  color: #fff;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.purchase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.purchase-item {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.purchase-item .emoji {
+  font-size: 2rem;
+}
+
+.purchase-item .details {
+  color: #fff;
+}
+
+.purchase-item .details .name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.purchase-item .details .meta {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.purchase-item .price {
+  color: #4CAF50;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-card .number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card .label {
+  color: #999;
+  font-size: 0.9rem;
 }
 
 footer {
@@ -175,8 +403,7 @@ footer {
   margin-top: 4rem;
 }
 
-/* Mobile Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
@@ -194,11 +421,382 @@ footer {
     font-size: 1.1rem;
   }
   
-  header h1 {
-    font-size: 1.8rem;
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
   
-  main {
-    padding: 1.5rem 1rem;
+  .product-info h2 {
+    font-size: 1.5rem;
+  }
+  
+  .product-info .price {
+    font-size: 1.5rem;
   }
 }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="admin-toggle" onclick="toggleAdmin()">📊 View Orders</button>
+  <h1>CRUX APPAREL</h1>
+  <p>Faith-Based Streetwear</p>
+</header>
+
+<main>
+  <!-- Admin Panel -->
+  <section id="adminPanel" class="hidden">
+    <div class="admin-panel">
+      <h2>📊 Order Tracking</h2>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="number" id="totalOrders">0</div>
+          <div class="label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="totalRevenue">$0</div>
+          <div class="label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" id="avgOrder">$0</div>
+          <div class="label">Avg Order</div>
+        </div>
+      </div>
+      
+      <h3 style="color: #fff; margin-bottom: 1rem; font-size: 1.2rem;">Recent Orders</h3>
+      <div class="purchase-list" id="purchaseList">
+        <div style="color: #666; text-align: center; padding: 2rem;">
+          No orders yet. When customers checkout, they'll appear here!
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+        <button class="button" onclick="exportOrders()" style="width: auto; padding: 0.7rem 1.5rem;">
+          📥 Export Orders (CSV)
+        </button>
+        <button class="button secondary" onclick="toggleAdmin()" style="width: auto; padding: 0.7rem 1.5rem;">
+          ← Back to Shop
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shop Page -->
+  <section id="shopPage">
+    <div class="grid">
+      <article class="card" onclick="showProduct('truth')">
+        <div class="card-image">✝️</div>
+        <div class="card-content">
+          <h3>THE TRUTH Oversized Tee</h3>
+          <div class="price">$25.00</div>
+        </div>
+      </article>
+      
+      <article class="card" onclick="showProduct('verse')">
+        <div class="card-image">📖</div>
+        <div class="card-content">
+          <h3>Custom Verse Tee</h3>
+          <div class="price">$25.00</div>
+        </div>
+      </article>
+      
+      <article class="card" onclick="showProduct('fire-cross')">
+        <div class="card-image">🔥✝️</div>
+        <div class="card-content">
+          <h3>Fire Cross Crux Mix</h3>
+          <div class="price">$25.00</div>
+        </div>
+      </article>
+      
+      <article class="card" onclick="showProduct('classic')">
+        <div class="card-image">✨</div>
+        <div class="card-content">
+          <h3>Classic Crux Tee</h3>
+          <div class="price">$25.00</div>
+        </div>
+      </article>
+      
+      <article class="card" onclick="showProduct('john-tee')">
+        <div class="card-image">📜</div>
+        <div class="card-content">
+          <h3>JOHN 14:6 Graphic Tee</h3>
+          <div class="price">$25.00</div>
+        </div>
+      </article>
+      
+      <article class="card" onclick="showProduct('john-hoodie')">
+        <div class="card-image">🧥</div>
+        <div class="card-content">
+          <h3>JOHN 14:6 Cross Hoodie</h3>
+          <div class="price">$60.00</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Product Detail Page -->
+  <section id="productPage" class="hidden">
+    <div class="back-nav">
+      <button class="button secondary" onclick="backToShop()">← Back to Shop</button>
+    </div>
+    <div id="productContent"></div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2024 Crux Apparel. All rights reserved.</p>
+</footer>
+
+<script>
+const shopPage = document.getElementById('shopPage');
+const productPage = document.getElementById('productPage');
+const productContent = document.getElementById('productContent');
+const adminPanel = document.getElementById('adminPanel');
+const purchaseList = document.getElementById('purchaseList');
+
+// Replace with your PayPal email address
+const PAYPAL_EMAIL = 'your-email@example.com';
+
+// Track purchases in memory (resets on page refresh)
+let purchases = [];
+
+const products = {
+  'truth': {
+    name: 'THE TRUTH Oversized Tee',
+    price: 25.00,
+    emoji: '✝️',
+    description: 'Oversized fit with bold cross design',
+    variants: [
+      { color: 'White' },
+      { color: 'Black' }
+    ]
+  },
+  'verse': {
+    name: 'Custom Verse Tee',
+    price: 25.00,
+    emoji: '📖',
+    description: '"For God so loved the world..." - John 3:16',
+    variants: [
+      { color: 'White' },
+      { color: 'Black' }
+    ]
+  },
+  'fire-cross': {
+    name: 'Fire Cross Crux Mix',
+    price: 25.00,
+    emoji: '🔥✝️',
+    description: 'Bold fire and cross graphic design',
+    variants: [
+      { color: 'White' },
+      { color: 'Black' }
+    ]
+  },
+  'classic': {
+    name: 'Classic Crux Tee',
+    price: 25.00,
+    emoji: '✨',
+    description: 'Timeless Crux branding',
+    variants: [
+      { color: 'White' },
+      { color: 'Black' }
+    ]
+  },
+  'john-tee': {
+    name: 'JOHN 14:6 Graphic Tee',
+    price: 25.00,
+    emoji: '📜',
+    description: '"I am the way, the truth, and the life" - Oversized fit',
+    variants: [
+      { color: 'White' }
+    ]
+  },
+  'john-hoodie': {
+    name: 'JOHN 14:6 Cross Hoodie',
+    price: 60.00,
+    emoji: '🧥',
+    description: 'Premium hoodie with cross graphic',
+    variants: [
+      { color: 'Black' }
+    ]
+  }
+};
+
+let currentProduct = null;
+let selectedVariant = null;
+
+function showProduct(productKey) {
+  currentProduct = products[productKey];
+  selectedVariant = currentProduct.variants[0];
+  
+  let variantsHTML = '';
+  currentProduct.variants.forEach((v, idx) => {
+    variantsHTML += `
+      <button class="variant-btn ${idx === 0 ? 'active' : ''}" 
+              onclick="selectVariant(${idx})"
+              data-index="${idx}">
+        ${v.color}
+      </button>
+    `;
+  });
+  
+  productContent.innerHTML = `
+    <div class="product-detail-grid">
+      <div class="card" style="cursor: default;">
+        <div class="card-image" style="font-size: 8rem;">
+          ${currentProduct.emoji}
+        </div>
+      </div>
+      <div class="product-info">
+        <h2>${currentProduct.name}</h2>
+        <p>${currentProduct.description}</p>
+        <div class="price">$${currentProduct.price.toFixed(2)}</div>
+        
+        <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: #fff;">Select Color:</h3>
+        <div class="variant-selector">
+          ${variantsHTML}
+        </div>
+        
+        <button class="button" onclick="buyNow()">
+          Checkout - Pay with Card or PayPal
+        </button>
+      </div>
+    </div>
+  `;
+  
+  shopPage.classList.add('hidden');
+  productPage.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function selectVariant(index) {
+  selectedVariant = currentProduct.variants[index];
+  const buttons = document.querySelectorAll('.variant-btn');
+  buttons.forEach((btn, idx) => {
+    if (idx === index) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function buyNow() {
+  if (!currentProduct || !selectedVariant) return;
+  
+  const amount = currentProduct.price.toFixed(2);
+  
+  // Create a detailed order note
+  const orderNote = encodeURIComponent(`${currentProduct.name} - ${selectedVariant.color} - ${amount}`);
+  
+  // PayPal.me doesn't support notes in URL, so we'll open a confirmation first
+  const confirmMsg = `You're about to send ${amount} via PayPal for:\n\n${currentProduct.name}\nColor: ${selectedVariant.color}\n\nIMPORTANT: Please include this in your PayPal message:\n"${currentProduct.name} - ${selectedVariant.color}"\n\nThis helps us process your order correctly!`;
+  
+  if (confirm(confirmMsg)) {
+    const paypalURL = `https://paypal.me/${PAYPAL_USERNAME}/${amount}`;
+    window.open(paypalURL, '_blank');
+    
+    // Show reminder after opening PayPal
+    setTimeout(() => {
+      alert(`Don't forget to add this note in PayPal:\n"${currentProduct.name} - ${selectedVariant.color}"`);
+    }, 1000);
+  }
+}
+
+function backToShop() {
+  productPage.classList.add('hidden');
+  shopPage.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function toggleAdmin() {
+  if (adminPanel.classList.contains('hidden')) {
+    adminPanel.classList.remove('hidden');
+    shopPage.classList.add('hidden');
+    productPage.classList.add('hidden');
+    updateAdminPanel();
+  } else {
+    adminPanel.classList.add('hidden');
+    shopPage.classList.remove('hidden');
+  }
+  window.scrollTo(0, 0);
+}
+
+function updateAdminPanel() {
+  const totalOrders = purchases.length;
+  const totalRevenue = purchases.reduce((sum, p) => sum + parseFloat(p.price), 0);
+  const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
+  
+  document.getElementById('totalOrders').textContent = totalOrders;
+  document.getElementById('totalRevenue').textContent = `${totalRevenue.toFixed(2)}`;
+  document.getElementById('avgOrder').textContent = `${avgOrder}`;
+  
+  if (purchases.length === 0) {
+    purchaseList.innerHTML = `
+      <div style="color: #666; text-align: center; padding: 2rem;">
+        No orders yet. When customers checkout, they'll appear here!
+      </div>
+    `;
+  } else {
+    purchaseList.innerHTML = purchases.slice().reverse().map(p => {
+      const date = new Date(p.timestamp);
+      const timeStr = date.toLocaleString();
+      const productEmoji = products[Object.keys(products).find(key => 
+        products[key].name === p.product
+      )]?.emoji || '📦';
+      
+      return `
+        <div class="purchase-item">
+          <div class="emoji">${productEmoji}</div>
+          <div class="details">
+            <div class="name">${p.product}</div>
+            <div class="meta">
+              Color: ${p.variant} • ${p.customerName} • ${p.customerEmail}<br>
+              Order #${p.id} • ${timeStr}
+            </div>
+          </div>
+          <div class="price">${p.price}</div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function exportOrders() {
+  if (purchases.length === 0) {
+    alert('No orders to export yet!');
+    return;
+  }
+  
+  // Create CSV content
+  const headers = ['Order ID', 'Date/Time', 'Product', 'Color', 'Price', 'Customer Name', 'Customer Email', 'Status'];
+  const rows = purchases.map(p => [
+    p.id,
+    p.timestamp,
+    p.product,
+    p.variant,
+    p.price,
+    p.customerName,
+    p.customerEmail,
+    p.status
+  ]);
+  
+  const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+  
+  // Download CSV
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `crux-orders-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+  
+  alert('Orders exported successfully!');
+}
+
+</script>
+
+</body>
+</html>
