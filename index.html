@@ -115,28 +115,6 @@ header .verse cite {
   font-style: normal;
 }
 
-.admin-access {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(107, 70, 193, 0.2);
-  border: 1px solid var(--roku-purple);
-  color: var(--sacred-white);
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s;
-  backdrop-filter: blur(10px);
-}
-
-.admin-access:hover {
-  background: var(--roku-purple);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
-}
-
 .products-section {
   padding: 4rem 0;
 }
@@ -589,8 +567,8 @@ footer p {
 
 @media (max-width: 640px) {
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
   
   header h1 {
@@ -607,7 +585,6 @@ footer p {
 <body>
 
 <header>
-  <button class="admin-access" onclick="requestAdmin()">📊 View Orders (Google Sheet)</button>
   <div class="cross-symbol">✝</div>
   <h1>CRUX APPAREL</h1>
   <p class="tagline">Faith-Based Streetwear</p>
@@ -642,15 +619,11 @@ footer p {
 </footer>
 
 <script>
-// ==================== CONFIG ====================
 const CONFIG = {
   paypalClientId: 'AeGtvsVz_JqH9nrWqRxFjQH0X6CEKdHpKRzYwz7vGqhXgLqJhKz0gJKoYqW6pTxHm-QTvZVaEhYCw9aI',
-  googleScriptUrl: '', // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
-  googleSheetUrl: 'https://docs.google.com/spreadsheets/d/1cJxks81w2uVpY3SMiC1OFqQ0yazKmMp9Inso4gEI5jw/edit?gid=0#gid=0',
-  secretKey: 'CRUX_SECURE_2024' // MUST MATCH SECRET_KEY IN GOOGLE SCRIPT
+  googleScriptUrl: '' // Paste your Google Apps Script Web App URL here
 };
 
-// ==================== PRODUCTS ====================
 const PRODUCTS = {
   truth: {
     name: '"THE TRUTH✝" Oversized Tee',
@@ -718,14 +691,12 @@ const PRODUCTS = {
   }
 };
 
-// ==================== STATE ====================
 let currentProduct = null;
 let selectedVariant = null;
 let selectedSize = null;
 let customerData = {};
 let orderAttempts = [];
 
-// ==================== SECURITY ====================
 function generateOrderId() {
   return `CRUX-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 }
@@ -734,20 +705,22 @@ function generateTransactionId() {
   return `TXN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 }
 
-function generateSignature(data) {
+function generateChecksum(data) {
   const str = [
     data.orderId,
     data.transactionId,
     data.paypalOrderId,
     data.total,
-    data.customerEmail,
-    data.timestamp,
-    CONFIG.secretKey
+    data.customerEmail
   ].join('|');
   
-  return Array.from(str).reduce((hash, char) => {
-    return ((hash << 5) - hash) + char.charCodeAt(0) | 0;
-  }, 0).toString(16);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
 }
 
 function getFingerprint() {
@@ -785,16 +758,6 @@ function checkRateLimit() {
   return orderAttempts.length < 10;
 }
 
-// ==================== ADMIN ====================
-function requestAdmin() {
-  if (CONFIG.googleSheetUrl) {
-    window.open(CONFIG.googleSheetUrl, '_blank');
-  } else {
-    alert('Google Sheet URL not configured. Please add it to CONFIG.googleSheetUrl');
-  }
-}
-
-// ==================== PRODUCT DISPLAY ====================
 function loadProducts() {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '';
@@ -963,7 +926,6 @@ function backToShop() {
   customerData = {};
 }
 
-// ==================== VALIDATION ====================
 function validateForm() {
   let valid = true;
   
@@ -1011,7 +973,6 @@ function validateForm() {
   return valid;
 }
 
-// ==================== PAYPAL ====================
 function initPayPal() {
   const container = document.getElementById('paypal-button-container');
   container.innerHTML = '';
@@ -1098,9 +1059,8 @@ function initPayPal() {
           fingerprint: getFingerprint()
         };
         
-        order.signature = generateSignature(order);
+        order.checksum = generateChecksum(order);
         
-        // Send to Google Sheets
         if (CONFIG.googleScriptUrl) {
           fetch(CONFIG.googleScriptUrl, {
             method: 'POST',
@@ -1120,7 +1080,6 @@ function initPayPal() {
   }).render('#paypal-button-container');
 }
 
-// ==================== SUCCESS ====================
 function showSuccess(order) {
   const content = document.getElementById('productContent');
   content.innerHTML = `
@@ -1169,13 +1128,10 @@ function showSuccess(order) {
   `;
 }
 
-// ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
   
-  if (!CONFIG.googleScriptUrl) {
-    console.warn('⚠️ Google Script URL not configured - orders will not be saved!');
-  }
+  // Ready to accept orders
 });
 </script>
 </body>
