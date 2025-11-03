@@ -1,112 +1,21 @@
-function buyNow() {
-  if (!currentProduct || !selectedVariant) return;
-  
-  const amount = currentProduct.price.toFixed(2);
-  const itemName = `${currentProduct.name} - ${selectedVariant.color}`;
-  
-  // Collect customer info for tracking
-  const customerEmail = prompt('Enter your email for order confirmation:');
-  if (!customerEmail || !customerEmail.includes('@')) {
-    alert('Please enter a valid email address');
-    return;
-  }
-  
-  const customerName = prompt('Enter your name:');
-  if (!customerName) {
-    alert('Please enter your name');
-    return;
-  }
-  
-  // PayPal hosted button/checkout URL - accepts credit cards, debit cards, PayPal balance
-  // This creates a simple PayPal payment page that accepts ANY payment method
-  const paypalURL = `https://www.paypal.com/paypalme/${PAYPAL_EMAIL}/${amount}USD`;
-  
-  // Alternative: Use PayPal's invoice/checkout format
-  // Customers can pay with card without having PayPal account
-  const paypalCheckoutURL = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(PAYPAL_EMAIL)}&item_name=${encodeURIComponent(itemName)}&amount=${amount}&currency_code=USD&return=https://yourwebsite.com/thank-you&cancel_return=https://yourwebsite.com`;
-  
-  // Show what they're buying
-  const confirmMsg = `Ready to checkout?\n\n${itemName}\nPrice: ${amount}\n\nYou'll be able to pay with:\n• Credit/Debit Card\n• PayPal Balance\n• Bank Account`;
-  
-  if (confirm(confirmMsg)) {
-    // Track the purchase attempt
-    const purchase = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      product: currentProduct.name,
-      variant: selectedVariant.color,
-      price: amount,
-      customerName: customerName,
-      customerEmail: customerEmail,
-      status: 'Pending Payment'
-    };
-    
-    purchases.push(purchase);
-    updateAdminPanel();
-    
-    // Send order data to external tracking (Google Sheets, email, webhook)
-    sendOrderTracking(purchase);
-    
-    // Use the checkout URL that accepts all payment methods
-    window.open(paypalCheckoutURL, '_blank');
-    
-    // Show confirmation
-    alert(`Order submitted!\n\nOrder ID: ${purchase.id}\n\nYou'll receive a confirmation at ${customerEmail} once payment is complete.`);
-  }
-}
-
-// Send order to external tracking system
-function sendOrderTracking(purchase) {
-  // OPTION 1: Google Form submission (FREE - recommended)
-  // Create a Google Form with fields: timestamp, product, variant, price, name, email
-  // Get the form's pre-filled link and extract the entry IDs
-  // Replace these with your actual Google Form entry IDs
-  const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse';
-  
-  const formData = new FormData();
-  formData.append('entry.TIMESTAMP_ID', purchase.timestamp);
-  formData.append('entry.PRODUCT_ID', purchase.product);
-  formData.append('entry.VARIANT_ID', purchase.variant);
-  formData.append('entry.PRICE_ID', purchase.price);
-  formData.append('entry.NAME_ID', purchase.customerName);
-  formData.append('entry.EMAIL_ID', purchase.customerEmail);
-  
-  // Submit to Google Form (silently - no confirmation needed)
-  fetch(GOOGLE_FORM_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    body: formData
-  }).catch(() => {}); // Ignore errors since we're using no-cors
-  
-  // OPTION 2: Email notification via FormSubmit (FREE alternative)
-  // Sends email to you with order details
-  const emailData = {
-    name: purchase.customerName,
-    email: purchase.customerEmail,
-    message: `New Order!\n\nOrder ID: ${purchase.id}\nProduct: ${purchase.product}\nColor: ${purchase.variant}\nPrice: ${purchase.price}\nCustomer: ${purchase.customerName}\nEmail: ${purchase.customerEmail}\nTime: ${purchase.timestamp}`
-  };
-  
-  // Replace with your email - FormSubmit will send orders to this email
-  fetch('https://formsubmit.co/YOUR-EMAIL@example.com', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(emailData)
-  }).catch(() => {}); // Ignore errors
-  
-  // OPTION 3: Custom webhook (if you have your own server)
-  // fetch('https://your-server.com/api/orders', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(purchase)
-  // });
-}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crux Apparel | Faith-Based Streetwear</title>
+<title>✝ CRUX APPAREL | Faith-Based Streetwear</title>
+<script src="https://www.paypal.com/sdk/js?client-id=AeGtvsVz_JqH9nrWqRxFjQH0X6CEKdHpKRzYwz7vGqhXgLqJhKz0gJKoYqW6pTxHm-QTvZVaEhYCw9aI&currency=USD"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+  --roku-purple: #6b46c1;
+  --roku-dark: #110a1f;
+  --roku-light: #b8a5d8;
+  --holy-gold: #d4af37;
+  --sacred-white: #f5f5f0;
+  --divine-glow: rgba(212, 175, 55, 0.15);
+}
 
 * {
   margin: 0;
@@ -116,322 +25,581 @@ function sendOrderTracking(purchase) {
 
 body {
   font-family: 'Inter', sans-serif;
-  background: #0a0a0a;
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--roku-dark) 0%, #1a0f2e 100%);
+  color: var(--sacred-white);
   overflow-x: hidden;
-  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, var(--divine-glow) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(107, 70, 193, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 header {
   text-align: center;
-  padding: 2rem 1rem;
-  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-  border-bottom: 1px solid #333;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(180deg, rgba(17, 10, 31, 0.9) 0%, rgba(17, 10, 31, 0.5) 100%);
+  backdrop-filter: blur(10px);
   position: relative;
 }
 
-.admin-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+.cross-symbol {
+  font-size: 3rem;
+  color: var(--holy-gold);
+  margin-bottom: 0.5rem;
+  animation: glow 3s ease-in-out infinite;
 }
 
-.admin-toggle:hover {
-  background: #fff;
-  color: #000;
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 20px var(--holy-gold), 0 0 40px var(--holy-gold); }
+  50% { text-shadow: 0 0 30px var(--holy-gold), 0 0 60px var(--holy-gold); }
 }
 
 header h1 {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: var(--sacred-white);
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
-header p {
-  font-size: clamp(0.9rem, 2vw, 1rem);
-  color: #999;
-  font-weight: 400;
+header .tagline {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color: var(--roku-light);
+  font-weight: 300;
+  letter-spacing: 3px;
 }
 
-main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+header .verse {
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  background: rgba(212, 175, 55, 0.1);
+  border-left: 3px solid var(--holy-gold);
+  border-right: 3px solid var(--holy-gold);
+  display: inline-block;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+header .verse p {
+  font-style: italic;
+  color: var(--roku-light);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-.card {
-  background: #1a1a1a;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #2a2a2a;
-  transition: all 0.3s ease;
+header .verse cite {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--holy-gold);
+  font-weight: 600;
+  font-style: normal;
+}
+
+.admin-access {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(107, 70, 193, 0.2);
+  border: 1px solid var(--roku-purple);
+  color: var(--sacred-white);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
-  border-color: #444;
+.admin-access:hover {
+  background: var(--roku-purple);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
 }
 
-.card-image {
+.products-section {
+  padding: 4rem 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: var(--holy-gold);
+  margin-bottom: 0.5rem;
+  letter-spacing: 2px;
+}
+
+.section-title .divider {
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--holy-gold), transparent);
+  margin: 1rem auto;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.product-card {
+  background: rgba(17, 10, 31, 0.6);
+  border: 2px solid rgba(107, 70, 193, 0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--divine-glow) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--holy-gold);
+  box-shadow: 0 12px 40px rgba(107, 70, 193, 0.3), 0 0 60px var(--divine-glow);
+}
+
+.product-card:hover::before {
+  opacity: 1;
+}
+
+.product-image {
   width: 100%;
   aspect-ratio: 1;
-  background: #2a2a2a;
+  background: linear-gradient(135deg, rgba(17, 10, 31, 0.8), rgba(26, 15, 46, 0.8));
   display: flex;
   align-items: center;
   justify-content: center;
+  border-bottom: 2px solid rgba(107, 70, 193, 0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-image.no-image {
   font-size: 4rem;
-  border-bottom: 1px solid #333;
 }
 
-.card-content {
+.product-info {
   padding: 1.5rem;
+  position: relative;
 }
 
-.card h3 {
+.product-name {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #fff;
+  color: var(--sacred-white);
+  line-height: 1.3;
 }
 
-.card .price {
-  font-size: 1.3rem;
+.product-price {
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #4CAF50;
+  color: var(--holy-gold);
   margin-bottom: 1rem;
 }
 
-.button {
-  display: inline-block;
+.view-btn {
   width: 100%;
   padding: 0.9rem;
-  background: #fff;
-  color: #000;
-  text-align: center;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
+  background: linear-gradient(135deg, var(--roku-purple), #8b5cf6);
+  color: white;
   border: none;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  font-size: 1rem;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.95rem;
 }
 
-.button:hover {
-  background: #e0e0e0;
-  transform: scale(1.02);
+.view-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 70, 193, 0.5);
 }
 
-.button.secondary {
-  background: transparent;
-  border: 2px solid #fff;
-  color: #fff;
+.product-detail {
+  padding: 2rem 0 4rem;
 }
 
-.button.secondary:hover {
-  background: #fff;
-  color: #000;
-}
-
-.hidden { 
-  display: none !important;
-}
-
-.back-nav {
+.back-btn {
+  background: rgba(107, 70, 193, 0.2);
+  border: 2px solid var(--roku-purple);
+  color: var(--sacred-white);
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
   margin-bottom: 2rem;
+  transition: all 0.3s;
+  display: inline-block;
 }
 
-.product-detail-grid {
+.back-btn:hover {
+  background: var(--roku-purple);
+  transform: translateX(-4px);
+}
+
+.detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 3rem;
   align-items: start;
 }
 
-.product-info h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #fff;
+.detail-image {
+  position: sticky;
+  top: 2rem;
 }
 
-.product-info p {
-  color: #999;
+.detail-image .product-card {
+  cursor: default;
+}
+
+.detail-image .product-image {
+  aspect-ratio: 1;
+  font-size: 8rem;
+}
+
+.detail-content h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--sacred-white);
+}
+
+.detail-content .description {
+  color: var(--roku-light);
   font-size: 1.1rem;
-  margin-bottom: 1rem;
-}
-
-.product-info .price {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #4CAF50;
+  line-height: 1.7;
   margin-bottom: 1.5rem;
 }
 
-.variant-selector {
+.detail-content .price {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--holy-gold);
+  margin-bottom: 2rem;
+}
+
+.variant-section {
+  margin-bottom: 2rem;
+}
+
+.variant-section h3 {
+  color: var(--sacred-white);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.variant-options {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
 .variant-btn {
-  padding: 0.8rem 1.5rem;
-  background: #2a2a2a;
-  border: 2px solid #444;
-  border-radius: 8px;
-  color: #fff;
+  padding: 1rem 2rem;
+  background: rgba(17, 10, 31, 0.6);
+  border: 2px solid rgba(107, 70, 193, 0.5);
+  border-radius: 10px;
+  color: var(--sacred-white);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s;
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
 }
 
 .variant-btn:hover,
 .variant-btn.active {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
+  background: var(--roku-purple);
+  border-color: var(--holy-gold);
+  color: white;
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
 }
 
-.admin-panel {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
+.size-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.size-btn {
+  padding: 1rem 1.5rem;
+  background: rgba(17, 10, 31, 0.6);
+  border: 2px solid rgba(107, 70, 193, 0.5);
+  border-radius: 10px;
+  color: var(--sacred-white);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 70px;
+  text-align: center;
+}
+
+.size-btn:hover,
+.size-btn.active {
+  background: var(--roku-purple);
+  border-color: var(--holy-gold);
+  color: white;
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
+}
+
+.customer-form {
+  background: rgba(17, 10, 31, 0.8);
+  border: 2px solid rgba(107, 70, 193, 0.3);
+  border-radius: 16px;
   padding: 2rem;
   margin-bottom: 2rem;
 }
 
-.admin-panel h2 {
-  color: #fff;
+.customer-form h3 {
+  color: var(--holy-gold);
   margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  font-family: 'Playfair Display', serif;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  color: var(--roku-light);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(17, 10, 31, 0.6);
+  border: 2px solid rgba(107, 70, 193, 0.5);
+  border-radius: 10px;
+  color: var(--sacred-white);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--holy-gold);
+  box-shadow: 0 0 20px var(--divine-glow);
+}
+
+.form-group input.error {
+  border-color: #ef4444;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.security-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--roku-light);
+}
+
+.security-badge::before {
+  content: '🔒';
   font-size: 1.5rem;
 }
 
-.purchase-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.success-screen {
+  text-align: center;
+  padding: 4rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.purchase-item {
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 1rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1rem;
-  align-items: center;
+.success-icon {
+  font-size: 5rem;
+  margin-bottom: 2rem;
+  animation: successPulse 2s ease-in-out infinite;
 }
 
-.purchase-item .emoji {
-  font-size: 2rem;
+@keyframes successPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
-.purchase-item .details {
-  color: #fff;
+.success-screen h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: var(--holy-gold);
+  margin-bottom: 1rem;
 }
 
-.purchase-item .details .name {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.purchase-item .details .meta {
-  color: #999;
-  font-size: 0.9rem;
-}
-
-.purchase-item .price {
-  color: #4CAF50;
-  font-weight: 700;
+.success-screen .subtitle {
+  color: var(--roku-light);
   font-size: 1.2rem;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.stat-card {
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 1.5rem;
+.order-summary {
+  background: rgba(17, 10, 31, 0.8);
+  border: 2px solid var(--holy-gold);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.order-summary h3 {
+  color: var(--holy-gold);
+  margin-bottom: 1.5rem;
   text-align: center;
+  font-family: 'Playfair Display', serif;
 }
 
-.stat-card .number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #4CAF50;
-  margin-bottom: 0.5rem;
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(107, 70, 193, 0.3);
 }
 
-.stat-card .label {
-  color: #999;
-  font-size: 0.9rem;
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  color: var(--roku-light);
+  font-weight: 600;
+}
+
+.summary-value {
+  color: var(--sacred-white);
 }
 
 footer {
   text-align: center;
-  padding: 3rem 1rem 2rem;
-  color: #666;
-  border-top: 1px solid #2a2a2a;
+  padding: 3rem 2rem 2rem;
+  border-top: 2px solid rgba(212, 175, 55, 0.3);
   margin-top: 4rem;
+  background: linear-gradient(180deg, rgba(17, 10, 31, 0.5) 0%, rgba(17, 10, 31, 0.9) 100%);
 }
 
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1rem;
-  }
-  
-  .card-content {
-    padding: 1rem;
-  }
-  
-  .card h3 {
-    font-size: 1rem;
-  }
-  
-  .card .price {
-    font-size: 1.1rem;
-  }
-  
-  .product-detail-grid {
+footer .cross-symbol {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+footer p {
+  color: var(--roku-light);
+  margin-bottom: 0.5rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 968px) {
+  .detail-grid {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .detail-image {
+    position: static;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1.5rem;
   }
   
-  .product-info h2 {
-    font-size: 1.5rem;
+  header h1 {
+    letter-spacing: 4px;
   }
   
-  .product-info .price {
-    font-size: 1.5rem;
+  .variant-options,
+  .size-options {
+    justify-content: center;
   }
 }
 </style>
@@ -439,364 +607,576 @@ footer {
 <body>
 
 <header>
-  <button class="admin-toggle" onclick="toggleAdmin()">📊 View Orders</button>
+  <button class="admin-access" onclick="requestAdmin()">📊 View Orders (Google Sheet)</button>
+  <div class="cross-symbol">✝</div>
   <h1>CRUX APPAREL</h1>
-  <p>Faith-Based Streetwear</p>
+  <p class="tagline">Faith-Based Streetwear</p>
+  <div class="verse">
+    <p>"I can do all things through Christ who strengthens me"</p>
+    <cite>— Philippians 4:13</cite>
+  </div>
 </header>
 
-<main>
-  <!-- Admin Panel -->
-  <section id="adminPanel" class="hidden">
-    <div class="admin-panel">
-      <h2>📊 Order Tracking</h2>
-      
-      <div class="stats">
-        <div class="stat-card">
-          <div class="number" id="totalOrders">0</div>
-          <div class="label">Total Orders</div>
-        </div>
-        <div class="stat-card">
-          <div class="number" id="totalRevenue">$0</div>
-          <div class="label">Total Revenue</div>
-        </div>
-        <div class="stat-card">
-          <div class="number" id="avgOrder">$0</div>
-          <div class="label">Avg Order</div>
-        </div>
-      </div>
-      
-      <h3 style="color: #fff; margin-bottom: 1rem; font-size: 1.2rem;">Recent Orders</h3>
-      <div class="purchase-list" id="purchaseList">
-        <div style="color: #666; text-align: center; padding: 2rem;">
-          No orders yet. When customers checkout, they'll appear here!
-        </div>
-      </div>
-      
-      <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
-        <button class="button" onclick="exportOrders()" style="width: auto; padding: 0.7rem 1.5rem;">
-          📥 Export Orders (CSV)
-        </button>
-        <button class="button secondary" onclick="toggleAdmin()" style="width: auto; padding: 0.7rem 1.5rem;">
-          ← Back to Shop
-        </button>
-      </div>
+<main class="container">
+  
+  <section id="shopPage" class="products-section">
+    <div class="section-title">
+      <h2>Our Collection</h2>
+      <div class="divider"></div>
     </div>
+    <div class="products-grid" id="productsGrid"></div>
   </section>
 
-  <!-- Shop Page -->
-  <section id="shopPage">
-    <div class="grid">
-      <article class="card" onclick="showProduct('truth')">
-        <div class="card-image">✝️</div>
-        <div class="card-content">
-          <h3>THE TRUTH Oversized Tee</h3>
-          <div class="price">$25.00</div>
-        </div>
-      </article>
-      
-      <article class="card" onclick="showProduct('verse')">
-        <div class="card-image">📖</div>
-        <div class="card-content">
-          <h3>Custom Verse Tee</h3>
-          <div class="price">$25.00</div>
-        </div>
-      </article>
-      
-      <article class="card" onclick="showProduct('fire-cross')">
-        <div class="card-image">🔥✝️</div>
-        <div class="card-content">
-          <h3>Fire Cross Crux Mix</h3>
-          <div class="price">$25.00</div>
-        </div>
-      </article>
-      
-      <article class="card" onclick="showProduct('classic')">
-        <div class="card-image">✨</div>
-        <div class="card-content">
-          <h3>Classic Crux Tee</h3>
-          <div class="price">$25.00</div>
-        </div>
-      </article>
-      
-      <article class="card" onclick="showProduct('john-tee')">
-        <div class="card-image">📜</div>
-        <div class="card-content">
-          <h3>JOHN 14:6 Graphic Tee</h3>
-          <div class="price">$25.00</div>
-        </div>
-      </article>
-      
-      <article class="card" onclick="showProduct('john-hoodie')">
-        <div class="card-image">🧥</div>
-        <div class="card-content">
-          <h3>JOHN 14:6 Cross Hoodie</h3>
-          <div class="price">$60.00</div>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- Product Detail Page -->
-  <section id="productPage" class="hidden">
-    <div class="back-nav">
-      <button class="button secondary" onclick="backToShop()">← Back to Shop</button>
-    </div>
+  <section id="productPage" class="product-detail hidden">
+    <button class="back-btn" onclick="backToShop()">← Back to Collection</button>
     <div id="productContent"></div>
   </section>
+
 </main>
 
 <footer>
-  <p>&copy; 2024 Crux Apparel. All rights reserved.</p>
+  <div class="cross-symbol">✝</div>
+  <p>&copy; 2024 Crux Apparel. All Rights Reserved.</p>
+  <p>🔒 Secure Payments via PayPal</p>
+  <p style="margin-top: 1rem; font-size: 0.85rem;">"Let your light shine before others" - Matthew 5:16</p>
 </footer>
 
 <script>
-const shopPage = document.getElementById('shopPage');
-const productPage = document.getElementById('productPage');
-const productContent = document.getElementById('productContent');
-const adminPanel = document.getElementById('adminPanel');
-const purchaseList = document.getElementById('purchaseList');
+// ==================== CONFIG ====================
+const CONFIG = {
+  paypalClientId: 'AeGtvsVz_JqH9nrWqRxFjQH0X6CEKdHpKRzYwz7vGqhXgLqJhKz0gJKoYqW6pTxHm-QTvZVaEhYCw9aI',
+  googleScriptUrl: '', // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+  googleSheetUrl: 'https://docs.google.com/spreadsheets/d/1cJxks81w2uVpY3SMiC1OFqQ0yazKmMp9Inso4gEI5jw/edit?gid=0#gid=0',
+  secretKey: 'CRUX_SECURE_2024' // MUST MATCH SECRET_KEY IN GOOGLE SCRIPT
+};
 
-// Replace with your PayPal email address
-const PAYPAL_EMAIL = 'your-email@example.com';
-
-// Track purchases in memory (resets on page refresh)
-let purchases = [];
-
-const products = {
-  'truth': {
-    name: 'THE TRUTH Oversized Tee',
+// ==================== PRODUCTS ====================
+const PRODUCTS = {
+  truth: {
+    name: '"THE TRUTH✝" Oversized Tee',
     price: 25.00,
+    shipping: 5.00,
+    image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/truth-tee.png',
     emoji: '✝️',
-    description: 'Oversized fit with bold cross design',
+    description: 'Bold cross design on premium oversized fit. Make a statement with your faith.',
     variants: [
-      { color: 'White' },
-      { color: 'Black' }
-    ]
+      { color: 'White', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/truth-tee-white.png' },
+      { color: 'Black', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/truth-tee-black.png' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL']
   },
-  'verse': {
-    name: 'Custom Verse Tee',
+  verse: {
+    name: 'Cross & Verse Compilation Tee',
     price: 25.00,
+    shipping: 5.00,
+    image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/verse-tee.png',
     emoji: '📖',
-    description: '"For God so loved the world..." - John 3:16',
+    description: 'CUSTOMIZABLE VERSE - Choose your favorite scripture on this unique oversized design.',
     variants: [
-      { color: 'White' },
-      { color: 'Black' }
-    ]
+      { color: 'White', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/verse-tee-white.png' },
+      { color: 'Black', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/verse-tee-black.png' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    customizable: true
   },
-  'fire-cross': {
-    name: 'Fire Cross Crux Mix',
+  fireCross: {
+    name: 'Fire Cross Mix Classic Tee',
     price: 25.00,
+    shipping: 5.00,
+    image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/fire-cross-tee.png',
     emoji: '🔥✝️',
-    description: 'Bold fire and cross graphic design',
+    description: 'Powerful fire and cross graphic on classic fit tee. Bold faith, bold style.',
     variants: [
-      { color: 'White' },
-      { color: 'Black' }
-    ]
+      { color: 'White', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/fire-cross-tee-white.png' },
+      { color: 'Black', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/fire-cross-tee-black.png' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL']
   },
-  'classic': {
-    name: 'Classic Crux Tee',
+  johnTee: {
+    name: '"JOHN 14:6" Cross Graphic Tee',
     price: 25.00,
-    emoji: '✨',
-    description: 'Timeless Crux branding',
-    variants: [
-      { color: 'White' },
-      { color: 'Black' }
-    ]
-  },
-  'john-tee': {
-    name: 'JOHN 14:6 Graphic Tee',
-    price: 25.00,
+    shipping: 5.00,
+    image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/john-tee.png',
     emoji: '📜',
-    description: '"I am the way, the truth, and the life" - Oversized fit',
+    description: '"I am the way, the truth, and the life" - Oversized fit with powerful scripture.',
     variants: [
-      { color: 'White' }
-    ]
+      { color: 'White', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/john-tee-white.png' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL']
   },
-  'john-hoodie': {
-    name: 'JOHN 14:6 Cross Hoodie',
+  johnHoodie: {
+    name: '"JOHN 14:6" Cross Graphic Hoodie',
     price: 60.00,
+    shipping: 5.00,
+    image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/john-hoodie.png',
     emoji: '🧥',
-    description: 'Premium hoodie with cross graphic',
+    description: 'Premium hoodie featuring John 14:6 with bold cross graphic.',
     variants: [
-      { color: 'Black' }
-    ]
+      { color: 'Black', image: 'https://raw.githubusercontent.com/judebrewster1-design/cruxclothing/main/john-hoodie-black.png' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL', '2XL']
   }
 };
 
+// ==================== STATE ====================
 let currentProduct = null;
 let selectedVariant = null;
+let selectedSize = null;
+let customerData = {};
+let orderAttempts = [];
 
-function showProduct(productKey) {
-  currentProduct = products[productKey];
-  selectedVariant = currentProduct.variants[0];
+// ==================== SECURITY ====================
+function generateOrderId() {
+  return `CRUX-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+}
+
+function generateTransactionId() {
+  return `TXN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+}
+
+function generateSignature(data) {
+  const str = [
+    data.orderId,
+    data.transactionId,
+    data.paypalOrderId,
+    data.total,
+    data.customerEmail,
+    data.timestamp,
+    CONFIG.secretKey
+  ].join('|');
   
-  let variantsHTML = '';
-  currentProduct.variants.forEach((v, idx) => {
-    variantsHTML += `
-      <button class="variant-btn ${idx === 0 ? 'active' : ''}" 
-              onclick="selectVariant(${idx})"
-              data-index="${idx}">
-        ${v.color}
-      </button>
-    `;
-  });
+  return Array.from(str).reduce((hash, char) => {
+    return ((hash << 5) - hash) + char.charCodeAt(0) | 0;
+  }, 0).toString(16);
+}
+
+function getFingerprint() {
+  return {
+    userAgent: navigator.userAgent,
+    screenResolution: `${screen.width}x${screen.height}`,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    language: navigator.language,
+    platform: navigator.platform,
+    canvasFingerprint: generateCanvasFingerprint()
+  };
+}
+
+function generateCanvasFingerprint() {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.textBaseline = 'top';
+  ctx.font = '14px Arial';
+  ctx.fillText('CRUX', 2, 2);
+  return canvas.toDataURL().slice(-50);
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length < 100;
+}
+
+function sanitize(str) {
+  if (!str) return '';
+  return String(str).replace(/[<>\"'&]/g, '').trim().substring(0, 200);
+}
+
+function checkRateLimit() {
+  const now = Date.now();
+  orderAttempts = orderAttempts.filter(t => now - t < 3600000);
+  return orderAttempts.length < 10;
+}
+
+// ==================== ADMIN ====================
+function requestAdmin() {
+  if (CONFIG.googleSheetUrl) {
+    window.open(CONFIG.googleSheetUrl, '_blank');
+  } else {
+    alert('Google Sheet URL not configured. Please add it to CONFIG.googleSheetUrl');
+  }
+}
+
+// ==================== PRODUCT DISPLAY ====================
+function loadProducts() {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = '';
   
-  productContent.innerHTML = `
-    <div class="product-detail-grid">
-      <div class="card" style="cursor: default;">
-        <div class="card-image" style="font-size: 8rem;">
-          ${currentProduct.emoji}
-        </div>
+  Object.keys(PRODUCTS).forEach(key => {
+    const p = PRODUCTS[key];
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.onclick = () => showProduct(key);
+    
+    card.innerHTML = `
+      <div class="product-image ${!p.image ? 'no-image' : ''}">
+        ${p.image ? `<img src="${p.image}" alt="${p.name}">` : p.emoji}
       </div>
       <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">$${p.price.toFixed(2)}</div>
+        <button class="view-btn">View Details</button>
+      </div>
+    `;
+    
+    grid.appendChild(card);
+  });
+}
+
+function showProduct(key) {
+  currentProduct = { key, ...PRODUCTS[key] };
+  selectedVariant = currentProduct.variants[0];
+  selectedSize = currentProduct.sizes[0];
+  
+  const content = document.getElementById('productContent');
+  content.innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-image">
+        <div class="product-card" style="cursor:default;">
+          <div class="product-image">
+            ${currentProduct.image ? `<img src="${currentProduct.image}" alt="${currentProduct.name}">` : `<div style="font-size:8rem;">${currentProduct.emoji}</div>`}
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-content">
         <h2>${currentProduct.name}</h2>
-        <p>${currentProduct.description}</p>
+        <p class="description">${currentProduct.description}</p>
         <div class="price">$${currentProduct.price.toFixed(2)}</div>
         
-        <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: #fff;">Select Color:</h3>
-        <div class="variant-selector">
-          ${variantsHTML}
+        <div class="variant-section">
+          <h3>Select Color:</h3>
+          <div class="variant-options">
+            ${currentProduct.variants.map((v, i) => `
+              <button class="variant-btn ${i === 0 ? 'active' : ''}" onclick="selectVariant(${i})">${v.color}</button>
+            `).join('')}
+          </div>
         </div>
         
-        <button class="button" onclick="buyNow()">
-          Checkout - Pay with Card or PayPal
-        </button>
+        <div class="variant-section">
+          <h3>Select Size:</h3>
+          <div class="size-options">
+            ${currentProduct.sizes.map((s, i) => `
+              <button class="size-btn ${i === 0 ? 'active' : ''}" onclick="selectSize(${i})">${s}</button>
+            `).join('')}
+          </div>
+        </div>
+        
+        ${currentProduct.customizable ? `
+          <div class="variant-section">
+            <h3>Custom Verse (Optional):</h3>
+            <textarea id="customVerse" placeholder="Enter your favorite Bible verse..." style="width:100%;padding:1rem;background:rgba(17,10,31,0.6);border:2px solid rgba(107,70,193,0.5);border-radius:10px;color:var(--sacred-white);font-family:'Inter',sans-serif;min-height:80px;"></textarea>
+          </div>
+        ` : ''}
+        
+        <div class="customer-form">
+          <h3>📦 Shipping Information</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input type="text" id="firstName" required>
+              <div class="error-msg" id="firstNameError"></div>
+            </div>
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input type="text" id="lastName" required>
+              <div class="error-msg" id="lastNameError"></div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" id="email" required>
+            <div class="error-msg" id="emailError"></div>
+          </div>
+          
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" id="phone" placeholder="(555) 123-4567" required>
+            <div class="error-msg" id="phoneError"></div>
+          </div>
+          
+          <div class="form-group">
+            <label>Street Address *</label>
+            <input type="text" id="street" required>
+            <div class="error-msg" id="streetError"></div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" id="city" required>
+              <div class="error-msg" id="cityError"></div>
+            </div>
+            <div class="form-group">
+              <label>State *</label>
+              <input type="text" id="state" placeholder="CA" required>
+              <div class="error-msg" id="stateError"></div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>ZIP Code *</label>
+              <input type="text" id="zip" placeholder="12345" required>
+              <div class="error-msg" id="zipError"></div>
+            </div>
+            <div class="form-group">
+              <label>Country *</label>
+              <input type="text" id="country" value="United States" required>
+              <div class="error-msg" id="countryError"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="security-badge">
+          Secure checkout with PayPal • SSL encrypted • Your information is protected
+        </div>
+        
+        <div id="paypal-button-container"></div>
       </div>
     </div>
   `;
   
-  shopPage.classList.add('hidden');
-  productPage.classList.remove('hidden');
+  document.getElementById('shopPage').classList.add('hidden');
+  document.getElementById('productPage').classList.remove('hidden');
   window.scrollTo(0, 0);
+  
+  initPayPal();
 }
 
 function selectVariant(index) {
   selectedVariant = currentProduct.variants[index];
-  const buttons = document.querySelectorAll('.variant-btn');
-  buttons.forEach((btn, idx) => {
-    if (idx === index) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+  document.querySelectorAll('.variant-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
   });
 }
 
-function buyNow() {
-  if (!currentProduct || !selectedVariant) return;
-  
-  const amount = currentProduct.price.toFixed(2);
-  
-  // Create a detailed order note
-  const orderNote = encodeURIComponent(`${currentProduct.name} - ${selectedVariant.color} - ${amount}`);
-  
-  // PayPal.me doesn't support notes in URL, so we'll open a confirmation first
-  const confirmMsg = `You're about to send ${amount} via PayPal for:\n\n${currentProduct.name}\nColor: ${selectedVariant.color}\n\nIMPORTANT: Please include this in your PayPal message:\n"${currentProduct.name} - ${selectedVariant.color}"\n\nThis helps us process your order correctly!`;
-  
-  if (confirm(confirmMsg)) {
-    const paypalURL = `https://paypal.me/${PAYPAL_USERNAME}/${amount}`;
-    window.open(paypalURL, '_blank');
-    
-    // Show reminder after opening PayPal
-    setTimeout(() => {
-      alert(`Don't forget to add this note in PayPal:\n"${currentProduct.name} - ${selectedVariant.color}"`);
-    }, 1000);
-  }
+function selectSize(index) {
+  selectedSize = currentProduct.sizes[index];
+  document.querySelectorAll('.size-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
 }
 
 function backToShop() {
-  productPage.classList.add('hidden');
-  shopPage.classList.remove('hidden');
-  window.scrollTo(0, 0);
+  document.getElementById('productPage').classList.add('hidden');
+  document.getElementById('shopPage').classList.remove('hidden');
+  currentProduct = null;
+  customerData = {};
 }
 
-function toggleAdmin() {
-  if (adminPanel.classList.contains('hidden')) {
-    adminPanel.classList.remove('hidden');
-    shopPage.classList.add('hidden');
-    productPage.classList.add('hidden');
-    updateAdminPanel();
-  } else {
-    adminPanel.classList.add('hidden');
-    shopPage.classList.remove('hidden');
-  }
-  window.scrollTo(0, 0);
-}
-
-function updateAdminPanel() {
-  const totalOrders = purchases.length;
-  const totalRevenue = purchases.reduce((sum, p) => sum + parseFloat(p.price), 0);
-  const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
+// ==================== VALIDATION ====================
+function validateForm() {
+  let valid = true;
   
-  document.getElementById('totalOrders').textContent = totalOrders;
-  document.getElementById('totalRevenue').textContent = `${totalRevenue.toFixed(2)}`;
-  document.getElementById('avgOrder').textContent = `${avgOrder}`;
+  const fields = {
+    firstName: { min: 2, msg: 'First name required' },
+    lastName: { min: 2, msg: 'Last name required' },
+    email: { validate: validateEmail, msg: 'Valid email required' },
+    phone: { min: 10, msg: 'Valid phone required' },
+    street: { min: 5, msg: 'Street address required' },
+    city: { min: 2, msg: 'City required' },
+    state: { min: 2, msg: 'State required' },
+    zip: { min: 5, msg: 'ZIP code required' },
+    country: { min: 2, msg: 'Country required' }
+  };
   
-  if (purchases.length === 0) {
-    purchaseList.innerHTML = `
-      <div style="color: #666; text-align: center; padding: 2rem;">
-        No orders yet. When customers checkout, they'll appear here!
-      </div>
-    `;
-  } else {
-    purchaseList.innerHTML = purchases.slice().reverse().map(p => {
-      const date = new Date(p.timestamp);
-      const timeStr = date.toLocaleString();
-      const productEmoji = products[Object.keys(products).find(key => 
-        products[key].name === p.product
-      )]?.emoji || '📦';
-      
-      return `
-        <div class="purchase-item">
-          <div class="emoji">${productEmoji}</div>
-          <div class="details">
-            <div class="name">${p.product}</div>
-            <div class="meta">
-              Color: ${p.variant} • ${p.customerName} • ${p.customerEmail}<br>
-              Order #${p.id} • ${timeStr}
-            </div>
-          </div>
-          <div class="price">${p.price}</div>
-        </div>
-      `;
-    }).join('');
+  Object.keys(fields).forEach(field => {
+    const input = document.getElementById(field);
+    const error = document.getElementById(`${field}Error`);
+    const value = sanitize(input.value);
+    
+    let isValid = false;
+    if (fields[field].validate) {
+      isValid = fields[field].validate(value);
+    } else {
+      isValid = value.length >= fields[field].min;
+    }
+    
+    if (!isValid) {
+      input.classList.add('error');
+      error.textContent = fields[field].msg;
+      error.style.display = 'block';
+      valid = false;
+    } else {
+      input.classList.remove('error');
+      error.style.display = 'none';
+      customerData[field] = value;
+    }
+  });
+  
+  if (!checkRateLimit()) {
+    alert('Too many attempts. Please wait an hour.');
+    return false;
   }
+  
+  return valid;
 }
 
-function exportOrders() {
-  if (purchases.length === 0) {
-    alert('No orders to export yet!');
+// ==================== PAYPAL ====================
+function initPayPal() {
+  const container = document.getElementById('paypal-button-container');
+  container.innerHTML = '';
+  
+  if (!window.paypal) {
+    container.innerHTML = '<p style="color:#ef4444;">PayPal SDK failed to load</p>';
     return;
   }
   
-  // Create CSV content
-  const headers = ['Order ID', 'Date/Time', 'Product', 'Color', 'Price', 'Customer Name', 'Customer Email', 'Status'];
-  const rows = purchases.map(p => [
-    p.id,
-    p.timestamp,
-    p.product,
-    p.variant,
-    p.price,
-    p.customerName,
-    p.customerEmail,
-    p.status
-  ]);
-  
-  const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
-  
-  // Download CSV
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `crux-orders-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-  
-  alert('Orders exported successfully!');
+  paypal.Buttons({
+    style: {
+      layout: 'vertical',
+      color: 'gold',
+      shape: 'rect',
+      label: 'paypal'
+    },
+    
+    onClick: () => validateForm(),
+    
+    createOrder: (data, actions) => {
+      const orderId = generateOrderId();
+      const total = (currentProduct.price + currentProduct.shipping).toFixed(2);
+      
+      return actions.order.create({
+        purchase_units: [{
+          custom_id: orderId,
+          description: `${currentProduct.name} - ${selectedVariant.color} - ${selectedSize}`,
+          amount: {
+            value: total,
+            currency_code: 'USD',
+            breakdown: {
+              item_total: { value: currentProduct.price.toFixed(2), currency_code: 'USD' },
+              shipping: { value: currentProduct.shipping.toFixed(2), currency_code: 'USD' }
+            }
+          }
+        }]
+      });
+    },
+    
+    onApprove: (data, actions) => {
+      return actions.order.capture().then(orderData => {
+        if (orderData.status !== 'COMPLETED') {
+          alert('Payment not completed');
+          return;
+        }
+        
+        orderAttempts.push(Date.now());
+        
+        const orderId = orderData.purchase_units[0].custom_id;
+        const transactionId = generateTransactionId();
+        const timestamp = new Date().toISOString();
+        const total = (currentProduct.price + currentProduct.shipping).toFixed(2);
+        
+        const customVerse = document.getElementById('customVerse')?.value || 'None';
+        
+        const order = {
+          orderId,
+          transactionId,
+          paypalOrderId: orderData.id,
+          timestamp,
+          date: new Date().toLocaleDateString(),
+          product: currentProduct.name,
+          productId: currentProduct.key,
+          productKey: currentProduct.key,
+          color: selectedVariant.color,
+          size: selectedSize,
+          price: currentProduct.price.toFixed(2),
+          shipping: currentProduct.shipping.toFixed(2),
+          total,
+          customerName: `${customerData.firstName} ${customerData.lastName}`,
+          customerEmail: customerData.email,
+          customerPhone: customerData.phone,
+          streetAddress: customerData.street,
+          city: customerData.city,
+          state: customerData.state,
+          zipCode: customerData.zip,
+          country: customerData.country,
+          fullAddress: `${customerData.street}, ${customerData.city}, ${customerData.state} ${customerData.zip}, ${customerData.country}`,
+          customVerse,
+          paymentVerified: true,
+          status: 'PENDING VERIFICATION',
+          payerEmail: orderData.payer.email_address,
+          payerName: orderData.payer.name ? `${orderData.payer.name.given_name} ${orderData.payer.name.surname}` : customerData.firstName,
+          fingerprint: getFingerprint()
+        };
+        
+        order.signature = generateSignature(order);
+        
+        // Send to Google Sheets
+        if (CONFIG.googleScriptUrl) {
+          fetch(CONFIG.googleScriptUrl, {
+            method: 'POST',
+            body: JSON.stringify(order)
+          }).catch(e => console.log('Webhook error:', e));
+        }
+        
+        showSuccess(order);
+      });
+    },
+    
+    onError: err => {
+      console.error('PayPal error:', err);
+      alert('Payment error. Please try again.');
+    }
+    
+  }).render('#paypal-button-container');
 }
 
-</script>
+// ==================== SUCCESS ====================
+function showSuccess(order) {
+  const content = document.getElementById('productContent');
+  content.innerHTML = `
+    <div class="success-screen">
+      <div class="success-icon">✅</div>
+      <h2>Order Confirmed!</h2>
+      <p class="subtitle">Payment Successfully Processed</p>
+      
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-row">
+          <span class="summary-label">Order ID:</span>
+          <span class="summary-value">${order.orderId}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Product:</span>
+          <span class="summary-value">${order.product}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Color:</span>
+          <span class="summary-value">${order.color}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Size:</span>
+          <span class="summary-value">${order.size}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Price:</span>
+          <span class="summary-value">${order.price}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping:</span>
+          <span class="summary-value">${order.shipping}</span>
+        </div>
+        <div class="summary-row" style="border-top:2px solid var(--holy-gold);padding-top:1rem;margin-top:0.5rem;">
+          <span class="summary-label" style="font-size:1.2rem;color:var(--holy-gold);">Total:</span>
+          <span class="summary-value" style="font-size:1.5rem;color:var(--holy-gold);font-weight:700;">${order.total}</span>
+        </div>
+      </div>
+      
+      <p style="margin-top:2rem;font-size:1.1rem;">📧 Confirmation email sent to <strong>${order.customerEmail}</strong></p>
+      <p style="color:var(--roku-light);margin-top:1rem;">Your order will ship within 2-3 business days</p>
+      
+      <button class="view-btn" onclick="backToShop()" style="max-width:300px;margin:2rem auto 0;">← Continue Shopping</button>
+    </div>
+  `;
+}
 
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  loadProducts();
+  
+  if (!CONFIG.googleScriptUrl) {
+    console.warn('⚠️ Google Script URL not configured - orders will not be saved!');
+  }
+});
+</script>
 </body>
 </html>
